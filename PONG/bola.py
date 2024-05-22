@@ -12,8 +12,7 @@ class Bola:
         self.x = self.x_original = x
         self.y = self.y_original = y
         angulo = self._get_random_angle(-30, 30, [0])
-        posicao = 1 if random.random() < 0.5 else -1
-        self.vel_x = posicao * abs(math.cos(angulo) * self.VEL_MAX)
+        self.vel_x = -abs(math.cos(angulo) * self.VEL_MAX)
         self.vel_y = math.sin(angulo) * self.VEL_MAX
 
     def _get_random_angle(self, angulo_min, angulo_max, excluded):
@@ -38,5 +37,5 @@ class Bola:
         vel_x = abs(math.cos(angulo) * self.VEL_MAX)
         vel_y = math.sin(angulo) * self.VEL_MAX
 
-        self.vel_x *= -1
+        self.vel_x = -vel_x
         self.vel_y = vel_y

@@ -12,7 +12,7 @@ class Informacao_Jogo:
         self.acertos_esq = acertos_esq
         self.acertos_dir = acertos_dir
         self.pontuacao_esq = pontuacao_esq
-        self.pontuacao_esq = pontuacao_dir
+        self.pontuacao_dir = pontuacao_dir
 
 
 class Jogo:
@@ -65,7 +65,7 @@ class Jogo:
         )
 
     def divisoria(self):
-        for i in range(10, self.altura_tela, self.altura_tela // 20):
+        for i in range(80, self.altura_tela, self.altura_tela // 20):
             if i % 2 == 1:
                 continue
             pygame.draw.rect(
