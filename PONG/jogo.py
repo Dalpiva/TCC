@@ -74,7 +74,7 @@ class Jogo:
                 (self.largura_tela // 2 - 5, i, 10, self.largura_tela // 20),
             )
 
-    def colisao(self):
+    def colisao(self, treino_qlearning=False):
         bola = self.bola
         raquete_esquerda = self.raquete_esquerda
         raquete_direita = self.raquete_direita
@@ -84,6 +84,9 @@ class Jogo:
             bola.vel_y *= -1
         elif bola.y - bola.RAIO <= 0:
             bola.vel_y *= -1
+
+        if treino_qlearning and (bola.x + bola.RAIO >= self.largura_tela - 30):
+            bola.vel_x *= -1
 
         # Esquerda
         if bola.vel_x < 0:
@@ -157,9 +160,9 @@ class Jogo:
 
         return True
 
-    def loop(self):
+    def loop(self, treino_qlearning=False):
         self.bola.move()
-        self.colisao()
+        self.colisao(treino_qlearning)
 
         if self.bola.x < 0:
             self.pontuacao_dir += 1
