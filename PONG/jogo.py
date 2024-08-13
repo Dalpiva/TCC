@@ -186,3 +186,11 @@ class Jogo:
         self.pontuacao_dir = 0
         self.acertos_esq = 0
         self.acertos_dir = 0
+
+    def adversario_perfeito(self):
+        centro_y_raquete = self.raquete_direita.y + self.raquete_direita.ALTURA // 2
+
+        if self.bola.y < centro_y_raquete:
+            return True  # A bola esta a cima
+        else:
+            return False  # A bola esta a baixo

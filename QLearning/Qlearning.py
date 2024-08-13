@@ -1,97 +1,89 @@
 import numpy as np
+import pickle
 
 
 class QLearning:
-    # Tudo o que a raquete pode andar no eixo Y
-    COLUNAS_AMBIENTE = 404
-    LINHAS_AMBIENTE = 493
-    ACOES = 3
+    def __init__(self, fator_desconto=0.00001, epsilon_min=0.1, epsilon=1):
+        self.alpha = 0.4
+        self.gamma = 0.7
 
-    valores_q = np.zeros((LINHAS_AMBIENTE, COLUNAS_AMBIENTE, ACOES))
+        self.fator_desconto = fator_desconto
+        self.epsilon_min = epsilon_min
+        self.epsilon = epsilon
 
-    # 0 = parar, 1 = cima, baixo = 2
-    lista_acoes = ["parar", "cima", "baixo"]
+        self.tabela_q = {}
+        self.recompensas = []
+        self.episodios = []
+        self.media = []
 
-    recompensas = np.full((LINHAS_AMBIENTE, COLUNAS_AMBIENTE), -1)
-    for i in range(min(COLUNAS_AMBIENTE, LINHAS_AMBIENTE)):
-        recompensas[i, i] = 100
+        self.recopensa = 0
 
-    for i in range(LINHAS_AMBIENTE):
-        for j in range(COLUNAS_AMBIENTE):
-            if i != j:  # Para não alterar a diagonal principal já definida
-                distancia = abs(i - j)
-                nivel_penalidade = 1 + (distancia // 50)
-                recompensas[i, j] = -nivel_penalidade
+    def epsilon_greedy(self):
+        self.epsilon = max(self.epsilon_min, self.epsilon * (1 - self.fator_desconto))
 
-    def procura_bola(self, linha_atual, coluna_atual):
-        if linha_atual > self.LINHAS_AMBIENTE - 1:
-            linha_atual = self.LINHAS_AMBIENTE - 1
-        if coluna_atual > self.COLUNAS_AMBIENTE - 1:
-            coluna_atual = self.COLUNAS_AMBIENTE - 1
+    def proxima_acao(self, estado, treino=False):
+        if estado not in self.tabela_q:
+            self.tabela_q[estado] = np.zeros(3)
 
-        if self.recompensas[linha_atual][coluna_atual] == 100:
-            return True
+        if treino:
+            self.epsilon_greedy()
+
+            if np.random.uniform() < self.epsilon:
+                acao = np.random.choice(3)
+            else:
+                acao = np.argmax(self.tabela_q[estado])
         else:
-            return False
+            acao = np.argmax(self.tabela_q[estado])
 
-    # Epsilon greedy
-    def proxima_acao(self, linha_atual, coluna_atual, epsilon):
-        if linha_atual > self.LINHAS_AMBIENTE - 1:
-            linha_atual = self.LINHAS_AMBIENTE - 1
-        if coluna_atual > self.COLUNAS_AMBIENTE - 1:
-            coluna_atual = self.COLUNAS_AMBIENTE - 1
+        return acao
 
-        if np.random.random() < epsilon:
-            acao = np.argmax(self.valores_q[linha_atual])
-            # if acao > 1:
-            # print(self.valores_q[linha_atual])
+    def atualiza_tabela_q(self, estado, acao, recompensa, proximo_estado):
+        if proximo_estado not in self.tabela_q:
+            self.tabela_q[proximo_estado] = np.zeros(3)
 
-            if acao > 2:
-                acao = 2
-            return acao
+        alvo = recompensa + self.gamma * np.max(self.tabela_q[proximo_estado])
+        erro = alvo - self.tabela_q[estado][acao]
+        self.tabela_q[estado][acao] += self.alpha * erro
+
+    def salva_tabela(self, episodio):
+        with open(f"tabela_q_ep_{episodio}.pkl", "wb") as file:
+            pickle.dump(self.tabela_q, file)
+
+    def carrega_tabela(self):
+        with open("", "rb") as file:
+            self.tabela_q = pickle.load(file)
+
+    def recebe_recompensa(self, y_raquete, y_bola):
+        altura_tela = 500
+
+        recompensa_max = 50  # metade do tamanho da raquete, o centro
+        recompensa_min = -50
+
+        centro_y_raquete = y_raquete + 50
+        distancia_y = abs(centro_y_raquete - y_bola)
+
+        recompensa = -(distancia_y / altura_tela) * recompensa_max
+
+        if distancia_y < recompensa_max:
+            recompensa += recompensa_max
+
+        return max(recompensa_min, recompensa)
+
+    def define_estado(self, y_raquete, y_bola):
+        fundo_raquete = y_raquete
+        topo_raquete = fundo_raquete - 100
+
+        if topo_raquete <= y_bola <= fundo_raquete:
+            estado_bola = 0  # a bola esta na linha da raquete
+        elif y_bola > fundo_raquete:
+            estado_bola = 1  # a bola esta abaixo da raquete
         else:
-            # Escolhe uma acao aleatoriamente entre as tres possiveis
-            return np.random.randint(self.ACOES)
+            estado_bola = 2  # a bola esta acima da raquete
 
-    def proxima_posicao(self, coluna_atual, acao):
-        if coluna_atual > self.COLUNAS_AMBIENTE - 1:
-            coluna_atual = self.COLUNAS_AMBIENTE - 1
-
-        decisao = 0
-
-        if self.lista_acoes[acao] == "parar" and coluna_atual > 0:
-            decisao = 0
-        elif (
-            self.lista_acoes[acao] == "cima"
-            and coluna_atual < self.COLUNAS_AMBIENTE - 1
-        ):
-            decisao = 1
-        elif self.lista_acoes[acao] == "baixo" and coluna_atual > self.COLUNAS_AMBIENTE:
-            decisao = 2
-
-        return decisao
-
-
-"""def get_acao(localizacao_atual):
-    localizacao_atual"""
-
-
-"""def treinamento(episodios, posicao_atual):
-    epsilon = 0.9
-    fator_disconto = 0.9
-    taxa_aprendizado = 0.9
-
-    for episode in range(episodios):
-        if not procura_bola(posicao_atual):
-            acao = proxima_acao(index_coluna_atual=posicao_atual, epsilon=epsilon)
-
-            index, decisao = proxima_posicao(
-                index_acao=acao, index_coluna_atual=posicao_atual
-            )
-
-            recompensa = recompensas[index]"""
+        return estado_bola
 
 
 if __name__ == "__main__":
     qlearning = QLearning()
-    print(qlearning.recompensas)
+    qlearning.epsilon_greedy()
+    print(qlearning.epsilon)

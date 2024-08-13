@@ -19,6 +19,41 @@ class PongGame:
         self.raquete_esquerda = self.jogo.raquete_esquerda
         self.raquete_direita = self.jogo.raquete_direita
 
+    def jogada_adversario_perfeito(self):
+        acao = self.jogo.adversario_perfeito()
+        if acao:
+            self.jogo.move_raquetes(esquerda=False, cima=True)
+        else:
+            self.jogo.move_raquetes(esquerda=False, cima=False)
+
+    def jogar(self):
+        run = True
+        clock = pygame.time.Clock()
+
+        while run:
+            clock.tick(60)
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    print("Acertos da IA: ", informacao_jogo.acertos_dir)
+                    run = False
+                    break
+
+            teclas = pygame.key.get_pressed()
+
+            if teclas[pygame.K_w]:
+                self.jogo.move_raquetes(esquerda=True, cima=True)
+            if teclas[pygame.K_s]:
+                self.jogo.move_raquetes(esquerda=True, cima=False)
+
+            self.jogada_adversario_perfeito()
+
+            informacao_jogo = self.jogo.loop()
+            self.jogo.cria_tela(True, False)
+            pygame.display.update()
+
+        pygame.quit()
+
     def testa_ia(self, individuo):
         run = True
         clock = pygame.time.Clock()
@@ -55,55 +90,6 @@ class PongGame:
                 self.jogo.move_raquetes(esquerda=False, cima=True)
             else:
                 self.jogo.move_raquetes(esquerda=False, cima=False)
-
-            informacao_jogo = self.jogo.loop()
-            self.jogo.cria_tela(True, False)
-            pygame.display.update()
-
-        pygame.quit()
-
-    def testa_q(self, qlearning):
-        run = True
-        clock = pygame.time.Clock()
-
-        while run:
-            clock.tick(60)
-
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    print("Q - Acertos da IA: ", informacao_jogo.acertos_dir)
-                    run = False
-                    break
-
-            teclas = pygame.key.get_pressed()
-
-            if teclas[pygame.K_w]:
-                self.jogo.move_raquetes(esquerda=True, cima=True)
-            if teclas[pygame.K_s]:
-                self.jogo.move_raquetes(esquerda=True, cima=False)
-
-            linha = int(self.bola.y)
-            coluna = int(self.raquete_esquerda.y)
-
-            if linha > 403:
-                linha = 403
-            if coluna > 403:
-                coluna = 403
-
-            bola = qlearning.procura_bola(linha_atual=linha, coluna_atual=coluna)
-            if not bola:
-                acao = qlearning.proxima_acao(
-                    linha_atual=linha, coluna_atual=coluna, epsilon=1
-                )
-
-                decisao = qlearning.proxima_posicao(coluna_atual=coluna, acao=acao)
-
-                if decisao == 0:
-                    pass
-                elif decisao == 1:
-                    self.jogo.move_raquetes(esquerda=False, cima=True)
-                else:
-                    self.jogo.move_raquetes(esquerda=False, cima=False)
 
             informacao_jogo = self.jogo.loop()
             self.jogo.cria_tela(True, False)
@@ -176,7 +162,7 @@ class PongGame:
         individuo_1.fitness += informacao_jogo.acertos_esq
         individuo_2.fitness += informacao_jogo.acertos_dir
 
-    def treina_qlearning(self, epsilon, fator_desconto, ritmo_aprendizado, qlearning):
+    """def treina_qlearning(self, agente):
         run = True
         # clock = pygame.time.Clock()
 
@@ -187,64 +173,47 @@ class PongGame:
                     run = False
                     break
 
-            # Se achar a bola para o jogo
-            linha = int(self.bola.y)
-            coluna = int(self.raquete_esquerda.y)
-            if linha > 403:
-                linha = 403
-            if coluna > 403:
-                coluna = 403
-
-            bola = qlearning.procura_bola(linha_atual=linha, coluna_atual=coluna)
-
-            if not bola:
-                acao = qlearning.proxima_acao(
-                    linha_atual=linha, coluna_atual=coluna, epsilon=epsilon
-                )
-
-                linha_antiga, coluna_antiga = linha, coluna
-                decisao = qlearning.proxima_posicao(coluna_atual=coluna, acao=acao)
-
-                if decisao == 0:
-                    pass
-                elif decisao == 1:
-                    self.jogo.move_raquetes(esquerda=True, cima=True)
-                else:
-                    self.jogo.move_raquetes(esquerda=True, cima=False)
-
-                nova_linha = int(self.bola.y)
-                nova_coluna = int(self.raquete_esquerda.y)
-                if nova_linha > 403:
-                    nova_linha = 403
-                if nova_coluna > 403:
-                    nova_coluna = 403
-
-                recompensa = qlearning.recompensas[nova_linha, nova_coluna]
-                valor_q_velho = qlearning.valores_q[linha_antiga, coluna_antiga, acao]
-                diferenca_temporal = recompensa + (
-                    fator_desconto
-                    * np.max(qlearning.valores_q[nova_linha, nova_coluna])
-                    - valor_q_velho
-                )
-
-                novo_valor_q = valor_q_velho + (ritmo_aprendizado * diferenca_temporal)
-                qlearning.valores_q[linha_antiga, coluna_antiga, acao] = novo_valor_q
-
-                informacao_jogo = self.jogo.loop(treino_qlearning=True)
-                self.jogo.cria_tela(False, True)
-                pygame.display.update()
-
-                if (
-                    informacao_jogo.pontuacao_dir >= 1
-                    or informacao_jogo.pontuacao_esq >= 1
-                    or informacao_jogo.acertos_esq > 50
-                ):
-                    run = False
-
+            if decisao_1 == 0:
+                pass
+            elif decisao_1 == 1:
+                self.jogo.move_raquetes(esquerda=True, cima=True)
             else:
+                self.jogo.move_raquetes(esquerda=True, cima=False)
+
+            entrada_2 = individuo_2.cria_entrada(
+                raquete_y=self.raquete_direita.y,
+                bola_y=self.bola.y,
+                distancia_bola=abs(self.raquete_direita.x - self.bola.x),
+            )
+            decisao_2 = individuo_2.calcula_saida(
+                input=entrada_2, nos=individuo_2.nos, pesos=individuo_2.pesos
+            )
+
+            if decisao_2 == 0:
+                pass
+            elif decisao_2 == 1:
+                self.jogo.move_raquetes(esquerda=False, cima=True)
+            else:
+                self.jogo.move_raquetes(esquerda=False, cima=False)
+
+            informacao_jogo = self.jogo.loop(treino_qlearning=True)
+            self.jogo.cria_tela(False, True)
+            pygame.display.update()
+
+            # Se alguem errar, para o jogo
+            if (
+                informacao_jogo.pontuacao_dir >= 1
+                or informacao_jogo.pontuacao_esq >= 1
+                or informacao_jogo.acertos_esq > 50
+            ):
+                self.calcula_fitness(
+                    individuo_1=individuo_1,
+                    individuo_2=individuo_2,
+                    informacao_jogo=informacao_jogo,
+                )
                 run = False
 
-        return informacao_jogo.acertos_esq
+        # pygame.quit()"""
 
 
 def ia_x_ia_ann():
@@ -282,39 +251,6 @@ def ia_x_ia_ann():
         individuos = ArtificialNeuralNetwork.mutacao(top1=t1, individuos=individuos)
 
 
-def ia_x_ia_qlearning():
-    episodios = 1000
-    epsilon = 0.9
-    fator_desconto = 0.9
-    ritmo_aprendizado = 0.9
-
-    LARGURA, ALTURA = 700, 500
-    tela = pygame.display.set_mode((LARGURA, ALTURA))
-    pygame.display.set_caption("PONG - TCC WESLEY - IA x IA - ANN")
-
-    qlearning = QLearning()
-
-    print("Iniciando treinamento - Qlearning!")
-
-    acertos = 0
-    for episodio in range(episodios):
-        # print(f"Novo episodio: {episodio+1} ############")
-        jogo = PongGame(tela, LARGURA, ALTURA)
-        acertos += jogo.treina_qlearning(
-            epsilon=epsilon,
-            fator_desconto=fator_desconto,
-            ritmo_aprendizado=ritmo_aprendizado,
-            qlearning=qlearning,
-        )
-
-    print("Acerto Medio treinamento: ", acertos / episodios)
-
-    with open("QLearning/ia.pickle", "wb") as f:
-        pickle.dump(qlearning, f)
-
-    print(qlearning.valores_q)
-
-
 def player_conta_ia(q_learning=False, geracao=1):
     LARGURA, ALTURA = 700, 500
     tela = pygame.display.set_mode((LARGURA, ALTURA))
@@ -333,8 +269,29 @@ def player_conta_ia(q_learning=False, geracao=1):
         jogo.testa_q(qlearning=vencedor)
 
 
+def jogar():
+    LARGURA, ALTURA = 700, 500
+    tela = pygame.display.set_mode((LARGURA, ALTURA))
+    pygame.display.set_caption("PONG - TCC WESLEY - Player x Oponente Perfeito")
+
+    jogo = PongGame(tela, LARGURA, ALTURA)
+    jogo.jogar()
+
+
+def treinamento_q_learning():
+    LARGURA, ALTURA = 700, 500
+    tela = pygame.display.set_mode((LARGURA, ALTURA))
+    pygame.display.set_caption("PONG - TCC WESLEY - Treinamento Q-Learning")
+
+    jogo = PongGame(tela, LARGURA, ALTURA)
+    agente = QLearning()
+
+    jogo.treina_qlearning(agente=agente)
+
+
 if __name__ == "__main__":
     # player_conta_ia(geracao=3)
     # ia_x_ia_ann()
-    ia_x_ia_qlearning()
+    # ia_x_ia_qlearning()
     # player_conta_ia(q_learning=True)
+    jogar()
