@@ -16,7 +16,7 @@ class QLearning:
         self.episodios = []
         self.media = []
 
-        self.recopensa = 0
+        self.recompensa = 0
 
     def epsilon_greedy(self):
         self.epsilon = max(self.epsilon_min, self.epsilon * (1 - self.fator_desconto))
@@ -46,11 +46,11 @@ class QLearning:
         self.tabela_q[estado][acao] += self.alpha * erro
 
     def salva_tabela(self, episodio):
-        with open(f"tabela_q_ep_{episodio}.pkl", "wb") as file:
+        with open(f"QLearning/episodios/tabela_q_ep_{episodio}.pkl", "wb") as file:
             pickle.dump(self.tabela_q, file)
 
-    def carrega_tabela(self):
-        with open("", "rb") as file:
+    def carrega_tabela(self, arq):
+        with open(arq, "rb") as file:
             self.tabela_q = pickle.load(file)
 
     def recebe_recompensa(self, y_raquete, y_bola):

@@ -162,8 +162,9 @@ class PongGame:
         individuo_1.fitness += informacao_jogo.acertos_esq
         individuo_2.fitness += informacao_jogo.acertos_dir
 
-    """def treina_qlearning(self, agente):
+    def treina_qlearning(self, agente):
         run = True
+        acao = 0
         # clock = pygame.time.Clock()
 
         while run:
@@ -173,47 +174,87 @@ class PongGame:
                     run = False
                     break
 
-            if decisao_1 == 0:
-                pass
-            elif decisao_1 == 1:
+            self.jogada_adversario_perfeito()
+
+            # -----
+            estado_bola = agente.define_estado(self.raquete_esquerda.y, self.bola.y)
+            estado = (estado_bola, acao)
+
+            acao = agente.proxima_acao(estado=estado, treino=True)
+
+            if acao == 1:
                 self.jogo.move_raquetes(esquerda=True, cima=True)
-            else:
+            elif acao == 2:
                 self.jogo.move_raquetes(esquerda=True, cima=False)
 
-            entrada_2 = individuo_2.cria_entrada(
-                raquete_y=self.raquete_direita.y,
-                bola_y=self.bola.y,
-                distancia_bola=abs(self.raquete_direita.x - self.bola.x),
-            )
-            decisao_2 = individuo_2.calcula_saida(
-                input=entrada_2, nos=individuo_2.nos, pesos=individuo_2.pesos
-            )
+            # Treinamento
+            recompensa = agente.recebe_recompensa(self.raquete_esquerda.y, self.bola.y)
+            estado_bola = agente.define_estado(self.raquete_esquerda.y, self.bola.y)
 
-            if decisao_2 == 0:
-                pass
-            elif decisao_2 == 1:
-                self.jogo.move_raquetes(esquerda=False, cima=True)
-            else:
-                self.jogo.move_raquetes(esquerda=False, cima=False)
+            proximo_estado = (estado_bola, acao)
 
-            informacao_jogo = self.jogo.loop(treino_qlearning=True)
-            self.jogo.cria_tela(False, True)
+            agente.atualiza_tabela_q(estado, acao, recompensa, proximo_estado)
+
+            agente.recompensa += recompensa
+            # -----
+
+            informacao_jogo = self.jogo.loop()
+            self.jogo.cria_tela(True, False)
             pygame.display.update()
 
-            # Se alguem errar, para o jogo
-            if (
-                informacao_jogo.pontuacao_dir >= 1
-                or informacao_jogo.pontuacao_esq >= 1
-                or informacao_jogo.acertos_esq > 50
-            ):
-                self.calcula_fitness(
-                    individuo_1=individuo_1,
-                    individuo_2=individuo_2,
-                    informacao_jogo=informacao_jogo,
-                )
+            if self.jogo.pontuacao_dir == 5 or self.jogo.pontuacao_esq == 5:
+                self.jogo.reset()
                 run = False
 
-        # pygame.quit()"""
+            if self.jogo.acertos_dir > 50:
+                self.jogo.reset()
+                run = False
+
+        # pygame.quit()
+
+    def jogar_qlearning(self, agente):
+        run = True
+        acao = 0
+        clock = pygame.time.Clock()
+
+        while run:
+            clock.tick(60)
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    run = False
+                    break
+
+            teclas = pygame.key.get_pressed()
+            if teclas[pygame.K_UP]:
+                self.jogo.move_raquetes(esquerda=False, cima=True)
+            elif teclas[pygame.K_DOWN]:
+                self.jogo.move_raquetes(esquerda=False, cima=False)
+
+            # -----
+            estado_bola = agente.define_estado(self.raquete_esquerda.y, self.bola.y)
+            estado = (estado_bola, acao)
+
+            acao = agente.proxima_acao(estado=estado)
+
+            if acao == 1:
+                self.jogo.move_raquetes(esquerda=True, cima=True)
+            elif acao == 2:
+                self.jogo.move_raquetes(esquerda=True, cima=False)
+            # -----
+
+            informacao_jogo = self.jogo.loop()
+            self.jogo.cria_tela(True, False)
+            pygame.display.update()
+
+            """if self.jogo.pontuacao_dir == 5 or self.jogo.pontuacao_esq == 5:
+                self.jogo.reset()
+                run = False
+
+            if self.jogo.acertos_dir > 50:
+                self.jogo.reset()
+                run = False"""
+
+        pygame.quit()
 
 
 def ia_x_ia_ann():
@@ -286,7 +327,29 @@ def treinamento_q_learning():
     jogo = PongGame(tela, LARGURA, ALTURA)
     agente = QLearning()
 
-    jogo.treina_qlearning(agente=agente)
+    for i in range(501):
+        jogo.treina_qlearning(agente=agente)
+
+        if i % 10 == 0:
+            agente.salva_tabela(episodio=i + 1)
+
+        print(
+            f"Episodio {i+1}, Epsilon: {agente.epsilon}, recompensa: {agente.recompensa}"
+        )
+
+
+def jogar_q_learning():
+    LARGURA, ALTURA = 700, 500
+    tela = pygame.display.set_mode((LARGURA, ALTURA))
+    pygame.display.set_caption("PONG - TCC WESLEY - Jogo Q-Learning")
+
+    jogo = PongGame(tela, LARGURA, ALTURA)
+    agente = QLearning()
+
+    # Bom EP em 251
+    agente.carrega_tabela(arq="QLearning/episodios/tabela_q_ep_251.pkl")
+
+    jogo.jogar_qlearning(agente=agente)
 
 
 if __name__ == "__main__":
@@ -294,4 +357,7 @@ if __name__ == "__main__":
     # ia_x_ia_ann()
     # ia_x_ia_qlearning()
     # player_conta_ia(q_learning=True)
-    jogar()
+
+    # jogar()
+    # treinamento_q_learning()
+    jogar_q_learning()
