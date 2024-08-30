@@ -1,4 +1,5 @@
 import numpy as np
+import pickle
 
 
 class ArtificialNeuralNetwork:
@@ -62,7 +63,7 @@ class ArtificialNeuralNetwork:
                 np.array([nos[k]])
             )
             for i in range(len(camada_atual)):
-                # RELu
+                # ReLU
                 camada_atual[i] = max(0, result[i])
 
                 # Sigmoid
@@ -115,6 +116,21 @@ class ArtificialNeuralNetwork:
             individuos[i].fitness = 0
 
         return individuos
+
+    def calcula_fitness(self, informacao_jogo):
+        self.fitness += informacao_jogo.acertos_esq
+
+    def salva_individuo(melhor_individuo, geracao):
+        with open(
+            f"NeuralNetwork/geracoes/melhor_individuo_geracao_{geracao}.pickle", "wb"
+        ) as f:
+            pickle.dump(melhor_individuo, f)
+
+    def carrega_individuo(geracao):
+        with open(
+            f"NeuralNetwork/geracoes/melhor_individuo_geracao_{geracao}.pickle", "rb"
+        ) as f:
+            return pickle.load(f)
 
 
 if __name__ == "__main__":
