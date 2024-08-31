@@ -33,7 +33,7 @@ class ArtificialNeuralNetwork:
 
         for i in range(len(novos_nos)):
             for linha in range(len(novos_nos[i])):
-                novos_nos[i][linha] = np.random.normal(novos_nos[i][linha], 1)
+                novos_nos[i][linha] = np.random.normal(novos_nos[i][linha], 0.01)
         return novos_nos
 
     def muta_pesos(self, pesos):
@@ -43,12 +43,14 @@ class ArtificialNeuralNetwork:
             for linha in range(len(novos_pesos[i])):
                 for coluna in range(len(novos_pesos[i][linha])):
                     novos_pesos[i][linha][coluna] = np.random.normal(
-                        novos_pesos[i][linha][coluna], 1
+                        novos_pesos[i][linha][coluna], 0.01
                     )
         return novos_pesos
 
-    def cria_entrada(self, raquete_y, bola_y, distancia_bola):
-        return np.array([[raquete_y, bola_y, distancia_bola]])
+    # def cria_entrada(self, raquete_y, bola_y, distancia_bola):
+    #    return np.array([[raquete_y, bola_y, distancia_bola]])
+    def cria_entrada(self, raquete_y, bola_y):
+        return np.array([[raquete_y, bola_y]])
 
     def calcula_saida(self, input, nos, pesos):
         camadas = [np.transpose(input)]
@@ -105,7 +107,7 @@ class ArtificialNeuralNetwork:
         print("Fitness - TOP 3: ", top3.fitness)
         print("")
 
-        return top1
+        return top1, fitness_medio
 
     def mutacao(top1, individuos):
         total_individuos = len(individuos)
@@ -119,6 +121,13 @@ class ArtificialNeuralNetwork:
 
     def calcula_fitness(self, informacao_jogo):
         self.fitness += informacao_jogo.acertos_esq
+
+    def gera_populacao(populacao):
+        individuos = []
+        for i in range(populacao):
+            individuos.append(ArtificialNeuralNetwork(2, 3))
+
+        return individuos
 
     def salva_individuo(melhor_individuo, geracao):
         with open(

@@ -8,8 +8,9 @@ from NeuralNetwork import ArtificialNeuralNetwork
 from QLearning import QLearning
 
 import pygame
-import pickle
 import numpy as np
+
+LARGURA, ALTURA = 700, 500
 
 
 class PongGame:
@@ -68,7 +69,7 @@ class PongGame:
             entrada_1 = individuo_1.cria_entrada(
                 raquete_y=self.raquete_esquerda.y,
                 bola_y=self.bola.y,
-                distancia_bola=abs(self.raquete_esquerda.x - self.bola.x),
+                # distancia_bola=abs(self.raquete_esquerda.x - self.bola.x),
             )
             decisao_1 = individuo_1.calcula_saida(
                 input=entrada_1, nos=individuo_1.nos, pesos=individuo_1.pesos
@@ -118,7 +119,7 @@ class PongGame:
             entrada = individuo.cria_entrada(
                 raquete_y=self.raquete_esquerda.y,
                 bola_y=self.bola.y,
-                distancia_bola=abs(self.raquete_esquerda.x - self.bola.x),
+                # distancia_bola=abs(self.raquete_esquerda.x - self.bola.x),
             )
 
             decisao = individuo.calcula_saida(
@@ -227,7 +228,6 @@ class PongGame:
 
 
 def jogar():
-    LARGURA, ALTURA = 700, 500
     tela = pygame.display.set_mode((LARGURA, ALTURA))
     pygame.display.set_caption("PONG - TCC WESLEY - Player x Oponente Perfeito")
 
@@ -235,28 +235,51 @@ def jogar():
     jogo.jogar()
 
 
-def treinamento_ann(populacao=100, geracoes=10):
-    individuos = []
-    for i in range(populacao):
-        individuos.append(ArtificialNeuralNetwork(3, 3))
+def treinamento_ann(populacao=100):
+    individuos = ArtificialNeuralNetwork.gera_populacao(populacao=populacao)
 
-    LARGURA, ALTURA = 700, 500
     tela = pygame.display.set_mode((LARGURA, ALTURA))
     pygame.display.set_caption("PONG - TCC WESLEY - Redes Neurais Artificiais")
 
     print("Iniciando treinamento - ANN!")
 
-    for geracao in range(geracoes):
-        print(f"Geracao {geracao} ###########################")
-        for i in range(len(individuos)):
-            jogo = PongGame(tela, LARGURA, ALTURA)
-            jogo.treina_ann(individuo_1=individuos[i])
+    geracao = 0
 
-        top1 = ArtificialNeuralNetwork.melhor_individuo(individuos=individuos)
+    while True:
+        print(f"Geracao {geracao} ###########################")
+        top1, resultado_treino = funcao_sem_nome(tela=tela, individuos=individuos)
 
         ArtificialNeuralNetwork.salva_individuo(melhor_individuo=top1, geracao=geracao)
-
         individuos = ArtificialNeuralNetwork.mutacao(top1=top1, individuos=individuos)
+
+        if resultado_treino is None:
+            print(f"TOP 1 Com fitness insatisfatorio, resetando populacao")
+            individuos = ArtificialNeuralNetwork.gera_populacao(populacao=populacao)
+
+        geracao += 1
+
+        if resultado_treino:
+            break
+
+    print("Treinamento Finalizado!")
+
+
+def funcao_sem_nome(tela, individuos):
+    for i in range(len(individuos)):
+        jogo = PongGame(tela, LARGURA, ALTURA)
+        jogo.treina_ann(individuo_1=individuos[i])
+
+    top1, fitness_medio = ArtificialNeuralNetwork.melhor_individuo(
+        individuos=individuos
+    )
+
+    if fitness_medio > 15:
+        return top1, True
+
+    if top1.fitness < 5:
+        return top1, None
+
+    return top1, False
 
 
 def jogar_ann(geracao):
@@ -305,13 +328,8 @@ def jogar_q_learning(episodio=251):
 
 
 if __name__ == "__main__":
-    # player_conta_ia(geracao=3)
-    # ia_x_ia_ann()
-    # ia_x_ia_qlearning()
-    # player_conta_ia(q_learning=True)
-
     # jogar()
     # treinamento_ann()
-    jogar_ann(geracao=1)
+    jogar_ann(geracao=12)
     # treinamento_q_learning()
     # jogar_q_learning(episodio=251)
