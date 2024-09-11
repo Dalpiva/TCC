@@ -8,7 +8,6 @@ from NeuralNetwork import ArtificialNeuralNetwork
 from QLearning import QLearning
 
 import pygame
-import numpy as np
 
 LARGURA, ALTURA = 700, 500
 
@@ -329,7 +328,7 @@ def jogar_q_learning(episodio=251):
 
 if __name__ == "__main__":
     # jogar()
-    # treinamento_ann()
-    jogar_ann(geracao=12)
+    treinamento_ann()
+    # jogar_ann(geracao=12)
     # treinamento_q_learning()
     # jogar_q_learning(episodio=251)
