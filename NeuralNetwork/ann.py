@@ -9,6 +9,7 @@ class ArtificialNeuralNetwork:
         self.estrutura_rede = [neuronios_entrada, neuronios_saida]
         self.nos = self.gera_nos(estrutura_rede=self.estrutura_rede)
         self.pesos = self.gera_pesos(estrutura_rede=self.estrutura_rede)
+        self.tempo_treino = 0
 
     def gera_nos(self, estrutura_rede):
         nos = []
@@ -47,8 +48,6 @@ class ArtificialNeuralNetwork:
                     )
         return novos_pesos
 
-    # def cria_entrada(self, raquete_y, bola_y, distancia_bola):
-    #    return np.array([[raquete_y, bola_y, distancia_bola]])
     def cria_entrada(self, raquete_y, bola_y):
         return np.array([[raquete_y, bola_y]])
 
@@ -77,9 +76,9 @@ class ArtificialNeuralNetwork:
         return camadas[-1].tolist().index(max(camadas[-1].tolist()))
 
     def melhor_individuo(individuos):
-        top1 = ArtificialNeuralNetwork(3, 3)
-        top2 = ArtificialNeuralNetwork(3, 3)
-        top3 = ArtificialNeuralNetwork(3, 3)
+        top1 = ArtificialNeuralNetwork(2, 3)
+        top2 = ArtificialNeuralNetwork(2, 3)
+        top3 = ArtificialNeuralNetwork(2, 3)
         fitness_total = 0
 
         for i in range(len(individuos)):
@@ -98,14 +97,6 @@ class ArtificialNeuralNetwork:
             fitness_total += individuos[i].fitness
 
         fitness_medio = fitness_total / len(individuos)
-
-        print("################################")
-        print("Fitness medio da Epoca: ", fitness_medio)
-        print("Melhores Individuos: ")
-        print("Fitness - TOP 1: ", top1.fitness)
-        print("Fitness - TOP 2: ", top2.fitness)
-        print("Fitness - TOP 3: ", top3.fitness)
-        print("")
 
         return top1, fitness_medio
 
@@ -135,15 +126,23 @@ class ArtificialNeuralNetwork:
         ) as f:
             pickle.dump(melhor_individuo, f)
 
+    def salva_melhor(melhor_individuo):
+        with open(f"NeuralNetwork/geracoes/melhor.pkl", "wb") as f:
+            pickle.dump(melhor_individuo, f)
+
     def carrega_individuo(geracao):
         with open(
             f"NeuralNetwork/geracoes/melhor_individuo_geracao_{geracao}.pickle", "rb"
         ) as f:
             return pickle.load(f)
 
+    def carrega_melhor():
+        with open("NeuralNetwork/geracoes/melhor.pkl", "rb") as f:
+            return pickle.load(f)
+
 
 if __name__ == "__main__":
-    individuo = ArtificialNeuralNetwork(3, 3)
+    individuo = ArtificialNeuralNetwork(2, 3)
     nos = individuo.nos
     pesos = individuo.pesos
     muta_nos = individuo.muta_nos(nos=nos)
@@ -158,8 +157,3 @@ if __name__ == "__main__":
     print(muta_nos)
     print("Mutacao pesos")
     print(muta_pesos)
-
-    input = individuo.cria_entrada(100, 200, 100)
-    print(input)
-    saida = individuo.calcula_saida(input=input, nos=nos, pesos=pesos)
-    print(saida)

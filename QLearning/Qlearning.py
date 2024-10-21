@@ -1,22 +1,22 @@
 import numpy as np
 import pickle
+import csv
 
 
 class QLearning:
-    def __init__(self, fator_desconto=0.00001, epsilon_min=0.1, epsilon=1):
-        self.alpha = 0.4
-        self.gamma = 0.7
+    def __init__(self, fator_desconto, alpha, gamma):
+        self.alpha = alpha
+        self.gamma = gamma
 
         self.fator_desconto = fator_desconto
-        self.epsilon_min = epsilon_min
-        self.epsilon = epsilon
+        self.epsilon_min = 0.1
+        self.epsilon = 1
 
         self.tabela_q = {}
-        self.recompensas = []
-        self.episodios = []
-        self.media = []
-
         self.recompensa = 0
+
+        self.acoes = 0
+        self.tempo_treino = 0
 
     def epsilon_greedy(self):
         self.epsilon = max(self.epsilon_min, self.epsilon * (1 - self.fator_desconto))
@@ -45,45 +45,56 @@ class QLearning:
         erro = alvo - self.tabela_q[estado][acao]
         self.tabela_q[estado][acao] += self.alpha * erro
 
-    def salva_tabela(self, episodio):
-        with open(f"QLearning/episodios/tabela_q_ep_{episodio}.pkl", "wb") as file:
-            pickle.dump(self.tabela_q, file)
-
-    def carrega_tabela(self, arq):
-        with open(arq, "rb") as file:
-            self.tabela_q = pickle.load(file)
+        # conta quantas acoes
+        self.acoes += 1
 
     def recebe_recompensa(self, y_raquete, y_bola):
         altura_tela = 500
 
-        recompensa_max = 50  # metade do tamanho da raquete, o centro
-        recompensa_min = -50
+        recompensa_max = 30  # metade do tamanho da raquete, o centro
+        recompensa_min = -30
 
         centro_y_raquete = y_raquete + 50
         distancia_y = abs(centro_y_raquete - y_bola)
 
         recompensa = -(distancia_y / altura_tela) * recompensa_max
 
-        if distancia_y < recompensa_max:
-            recompensa += recompensa_max
+        RAIO_BOLA = 8
+        if distancia_y <= RAIO_BOLA * 2:
+            recompensa += 100
 
         return max(recompensa_min, recompensa)
 
     def define_estado(self, y_raquete, y_bola):
-        fundo_raquete = y_raquete
-        topo_raquete = fundo_raquete - 100
+        cima_raquete = y_raquete
+        baixo_raquete = cima_raquete + 100
 
-        if topo_raquete <= y_bola <= fundo_raquete:
+        if cima_raquete <= y_bola <= baixo_raquete:
             estado_bola = 0  # a bola esta na linha da raquete
-        elif y_bola > fundo_raquete:
+        elif y_bola > baixo_raquete:
             estado_bola = 1  # a bola esta abaixo da raquete
         else:
             estado_bola = 2  # a bola esta acima da raquete
 
         return estado_bola
 
+    def salva_agente(episodio, agente):
+        with open(f"QLearning/episodios/tabela_q_ep_{episodio}.pkl", "wb") as file:
+            pickle.dump(agente, file)
+
+    def salva_final(agente):
+        with open(f"QLearning/episodios/agente_final.pkl", "wb") as file:
+            pickle.dump(agente, file)
+
+    def carrega_melhor():
+        with open("QLearning/episodios/agente_final.pkl", "rb") as file:
+            return pickle.load(file)
+
 
 if __name__ == "__main__":
-    qlearning = QLearning()
-    qlearning.epsilon_greedy()
-    print(qlearning.epsilon)
+    agente = QLearning()
+    agente.carrega_tabela(arq=f"QLearning/episodios/tabela_q_ep_{491}.pkl")
+    print("NOVO VALOR: ", np.max(agente.tabela_q[(0, 0)]))
+    agente.atualiza_tabela_q((0, 0), 0, 50, (1, 1))
+    print(agente.tabela_q)
+    print("NOVO VALOR: ", np.max(agente.tabela_q[(0, 0)]))
