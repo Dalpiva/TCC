@@ -1,23 +1,38 @@
 import pygame
-
 from PONG import Jogo
 
 
 class PongGame:
-    def __init__(self, tela, largura, altura):
+    def __init__(self, tela: pygame.Surface, largura: int, altura: int) -> None:
+        """
+        Inicializa a classe PongGame com os parâmetros da tela e as dimensões do jogo.
+
+        Args:
+            tela (pygame.Surface): A superfície do jogo onde os elementos são renderizados.
+            largura (int): A largura da tela do jogo.
+            altura (int): A altura da tela do jogo.
+        """
         self.jogo = Jogo(tela, largura, altura)
         self.bola = self.jogo.bola
         self.raquete_esquerda = self.jogo.raquete_esquerda
         self.raquete_direita = self.jogo.raquete_direita
 
-    def jogada_adversario_perfeito(self):
+    def mover_raquete_adversario_perfeito(self) -> None:
+        """
+        Move a raquete do oponente de forma perfeita, calculando se deve se mover para cima ou para baixo
+        com base na posição da bola.
+        """
         acao = self.jogo.adversario_perfeito()
         if acao:
             self.jogo.move_raquetes(esquerda=False, cima=True)
         else:
             self.jogo.move_raquetes(esquerda=False, cima=False)
 
-    def jogar(self):
+    def jogar(self) -> None:
+        """
+        Inicia o loop principal do jogo Pong, onde o jogador controla a raquete esquerda e um adversário perfeito
+        controla a raquete direita.
+        """
         run = True
         clock = pygame.time.Clock()
 
@@ -37,7 +52,7 @@ class PongGame:
             if teclas[pygame.K_s]:
                 self.jogo.move_raquetes(esquerda=True, cima=False)
 
-            self.jogada_adversario_perfeito()
+            self.mover_raquete_adversario_perfeito()
 
             informacao_jogo = self.jogo.loop()
             self.jogo.cria_tela(True, False)
@@ -45,7 +60,13 @@ class PongGame:
 
         pygame.quit()
 
-    def treina_ann(self, individuo_1):
+    def treinar_ann(self, individuo_1) -> None:
+        """
+        Treina uma rede neural artificial jogando Pong contra um adversário perfeito.
+
+        Args:
+            individuo_1: O indivíduo da rede neural artificial a ser treinado.
+        """
         run = True
 
         while run:
@@ -54,7 +75,7 @@ class PongGame:
                     run = False
                     break
 
-            self.jogada_adversario_perfeito()
+            self.mover_raquete_adversario_perfeito()
 
             entrada_1 = individuo_1.cria_entrada(
                 raquete_y=self.raquete_esquerda.y,
@@ -75,7 +96,6 @@ class PongGame:
             self.jogo.cria_tela(False, True)
             pygame.display.update()
 
-            # Se alguem errar, para o jogo
             if (
                 informacao_jogo.pontuacao_dir >= 1
                 or informacao_jogo.pontuacao_esq >= 1
@@ -86,7 +106,13 @@ class PongGame:
                 )
                 run = False
 
-    def jogar_ann(self, individuo):
+    def jogar_com_ann(self, individuo) -> None:
+        """
+        Inicia o jogo utilizando uma rede neural artificial para controlar a raquete esquerda.
+
+        Args:
+            individuo: O indivíduo da rede neural artificial que controlará a raquete esquerda.
+        """
         run = True
         clock = pygame.time.Clock()
 
@@ -108,7 +134,6 @@ class PongGame:
             entrada = individuo.cria_entrada(
                 raquete_y=self.raquete_esquerda.y,
                 bola_y=self.bola.y,
-                # distancia_bola=abs(self.raquete_esquerda.x - self.bola.x),
             )
 
             decisao = individuo.calcula_saida(
@@ -128,7 +153,13 @@ class PongGame:
 
         pygame.quit()
 
-    def treina_qlearning(self, agente):
+    def treinar_com_qlearning(self, agente) -> None:
+        """
+        Treina um agente utilizando o algoritmo de Q-Learning jogando Pong contra um adversário perfeito.
+
+        Args:
+            agente: O agente de Q-Learning a ser treinado.
+        """
         run = True
         acao = 0
         clock = pygame.time.Clock()
@@ -139,9 +170,8 @@ class PongGame:
                     run = False
                     break
 
-            self.jogada_adversario_perfeito()
+            self.mover_raquete_adversario_perfeito()
 
-            # -----
             _recompensa = 0
 
             estado_bola = agente.define_estado(self.raquete_esquerda.y, self.bola.y)
@@ -154,7 +184,6 @@ class PongGame:
             elif acao == 2:
                 self.jogo.move_raquetes(esquerda=True, cima=True)
 
-            # Treinamento
             _recompensa = agente.recebe_recompensa(self.raquete_esquerda.y, self.bola.y)
             estado_bola = agente.define_estado(self.raquete_esquerda.y, self.bola.y)
 
@@ -171,7 +200,13 @@ class PongGame:
                 self.jogo.reset()
                 run = False
 
-    def jogar_qlearning(self, agente):
+    def jogar_com_qlearning(self, agente) -> None:
+        """
+        Inicia o jogo utilizando um agente treinado com Q-Learning para controlar a raquete esquerda.
+
+        Args:
+            agente: O agente de Q-Learning que controlará a raquete esquerda.
+        """
         run = True
         acao = 0
         clock = pygame.time.Clock()
@@ -198,7 +233,6 @@ class PongGame:
                 self.jogo.move_raquetes(esquerda=True, cima=False)
             elif acao == 2:
                 self.jogo.move_raquetes(esquerda=True, cima=True)
-            # -----
 
             informacao_jogo = self.jogo.loop()
             self.jogo.cria_tela(True, False)

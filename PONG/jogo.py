@@ -7,8 +7,19 @@ from .raquete import Raquete
 pygame.init()
 
 
-class Informacao_Jogo:
-    def __init__(self, acertos_esq, acertos_dir, pontuacao_esq, pontuacao_dir):
+class InformacaoJogo:
+    def __init__(
+        self, acertos_esq: int, acertos_dir: int, pontuacao_esq: int, pontuacao_dir: int
+    ) -> None:
+        """
+        Inicializa a classe com as informações do jogo, incluindo pontuações e acertos.
+
+        Args:
+            acertos_esq (int): Número de acertos da raquete esquerda.
+            acertos_dir (int): Número de acertos da raquete direita.
+            pontuacao_esq (int): Pontuação da raquete esquerda.
+            pontuacao_dir (int): Pontuação da raquete direita.
+        """
         self.acertos_esq = acertos_esq
         self.acertos_dir = acertos_dir
         self.pontuacao_esq = pontuacao_esq
@@ -20,7 +31,17 @@ class Jogo:
     BRANCO = (255, 255, 255)
     PRETO = (0, 0, 0)
 
-    def __init__(self, tela, largura_tela, altura_tela):
+    def __init__(
+        self, tela: pygame.Surface, largura_tela: int, altura_tela: int
+    ) -> None:
+        """
+        Inicializa o jogo com a tela, raquetes, bola e pontuações.
+
+        Args:
+            tela (pygame.Surface): Superfície do jogo.
+            largura_tela (int): Largura da tela.
+            altura_tela (int): Altura da tela.
+        """
         self.altura_tela = altura_tela
         self.largura_tela = largura_tela
 
@@ -38,7 +59,10 @@ class Jogo:
 
         self.tela = tela
 
-    def pontuacao(self):
+    def pontuacao(self) -> None:
+        """
+        Exibe a pontuação das raquetes na tela.
+        """
         texto_esquerda = self.FONTE_PONTUACAO.render(
             f"{self.pontuacao_esq}", 1, self.BRANCO
         )
@@ -55,7 +79,10 @@ class Jogo:
             (self.largura_tela * 3 // 4 - texto_direita.get_width() // 2, 20),
         )
 
-    def acertos(self):
+    def acertos(self) -> None:
+        """
+        Exibe o número total de acertos (esquerda e direita) na tela.
+        """
         texto_acertos = self.FONTE_PONTUACAO.render(
             f"{self.acertos_esq + self.acertos_dir}", 1, self.BRANCO
         )
@@ -64,7 +91,10 @@ class Jogo:
             (self.largura_tela // 2 - texto_acertos.get_width() // 2, 10),
         )
 
-    def divisoria(self):
+    def divisoria(self) -> None:
+        """
+        Desenha uma linha divisória no meio da tela.
+        """
         for i in range(80, self.altura_tela, self.altura_tela // 20):
             if i % 2 == 1:
                 continue
@@ -74,7 +104,10 @@ class Jogo:
                 (self.largura_tela // 2 - 5, i, 10, self.largura_tela // 20),
             )
 
-    def colisao(self):
+    def colisao(self) -> None:
+        """
+        Detecta e lida com colisões da bola com as raquetes e as paredes.
+        """
         bola = self.bola
         raquete_esquerda = self.raquete_esquerda
         raquete_direita = self.raquete_direita
@@ -93,18 +126,13 @@ class Jogo:
             ):
                 if bola.x - bola.RAIO <= raquete_esquerda.x + Raquete.LARGURA:
                     bola.vel_x *= -1
-
-                    # Logica para o mudanca do Y, desta forma ha uma forma dos jogadores
-                    # controlarem a bola
-                    # Caso a bola acerte a metade de cima da raquete, ira para cima
-                    # Caso a bola acerte a metade de baixo da raquete, ira para baixo
                     meio_y = raquete_esquerda.y + Raquete.ALTURA // 2
                     diferenca_y = meio_y - bola.y
 
                     fator_de_reducao = (Raquete.ALTURA / 2) / bola.VEL_MAX
-                    velocidade_y = diferenca_y / fator_de_reducao
-                    bola.vel_y = -1 * velocidade_y
+                    bola.vel_y = -1 * (diferenca_y / fator_de_reducao)
                     self.acertos_esq += 1
+
         # Direita
         else:
             if (
@@ -113,16 +141,21 @@ class Jogo:
             ):
                 if bola.x + bola.RAIO >= raquete_direita.x:
                     bola.vel_x *= -1
-
                     meio_y = raquete_direita.y + Raquete.ALTURA // 2
                     diferenca_y = meio_y - bola.y
 
                     fator_de_reducao = (Raquete.ALTURA / 2) / bola.VEL_MAX
-                    velocidade_y = diferenca_y / fator_de_reducao
-                    bola.vel_y = -1 * velocidade_y
+                    bola.vel_y = -1 * (diferenca_y / fator_de_reducao)
                     self.acertos_dir += 1
 
-    def cria_tela(self, pontuacao=True, acertos=False):
+    def cria_tela(self, pontuacao: bool = True, acertos: bool = False) -> None:
+        """
+        Cria a tela do jogo com as raquetes, bola e, opcionalmente, as pontuações e acertos.
+
+        Args:
+            pontuacao (bool, opcional): Exibe a pontuação se True. Padrão é True.
+            acertos (bool, opcional): Exibe os acertos se True. Padrão é False.
+        """
         self.tela.fill(self.PRETO)
 
         self.divisoria()
@@ -138,7 +171,17 @@ class Jogo:
 
         self.bola.desenha_bola(self.tela)
 
-    def move_raquetes(self, esquerda=True, cima=True):
+    def move_raquetes(self, esquerda: bool = True, cima: bool = True) -> bool:
+        """
+        Move as raquetes para cima ou para baixo, dependendo da direção.
+
+        Args:
+            esquerda (bool, opcional): Mover a raquete esquerda se True, caso contrário mover a direita. Padrão é True.
+            cima (bool, opcional): Mover a raquete para cima se True, caso contrário para baixo. Padrão é True.
+
+        Retorna:
+            bool: Retorna False se a raquete não puder se mover (limites da tela), caso contrário True.
+        """
         if esquerda:
             if cima and self.raquete_esquerda.y - Raquete.VELOCIDADE < 0:
                 return False
@@ -157,7 +200,13 @@ class Jogo:
 
         return True
 
-    def loop(self):
+    def loop(self) -> InformacaoJogo:
+        """
+        Executa o loop principal do jogo, movendo a bola e verificando colisões.
+
+        Retorna:
+            InformacaoJogo: Objeto contendo o estado atual do jogo (acertos e pontuações).
+        """
         self.bola.move()
         self.colisao()
 
@@ -168,13 +217,14 @@ class Jogo:
             self.pontuacao_esq += 1
             self.bola.reset()
 
-        inforamcao_jogo = Informacao_Jogo(
+        return InformacaoJogo(
             self.acertos_esq, self.acertos_dir, self.pontuacao_esq, self.pontuacao_dir
         )
 
-        return inforamcao_jogo
-
-    def reset(self):
+    def reset(self) -> None:
+        """
+        Reseta o jogo para o estado inicial, incluindo as posições e pontuações.
+        """
         self.bola.reset()
         self.raquete_esquerda.reset()
         self.raquete_direita.reset()
@@ -184,10 +234,16 @@ class Jogo:
         self.acertos_esq = 0
         self.acertos_dir = 0
 
-    def adversario_perfeito(self):
+    def adversario_perfeito(self) -> bool:
+        """
+        Controla a raquete direita como um adversário perfeito, seguindo a posição da bola.
+
+        Retorna:
+            bool: Retorna True se a bola está acima da raquete, False se está abaixo.
+        """
         centro_y_raquete = self.raquete_direita.y + self.raquete_direita.ALTURA // 2
 
         if self.bola.y < centro_y_raquete:
-            return True  # A bola esta a cima
+            return True  # A bola está acima
         else:
-            return False  # A bola esta a baixo
+            return False  # A bola está abaixo
