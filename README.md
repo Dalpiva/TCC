@@ -6,13 +6,13 @@ Este projeto é uma implementação clássica do jogo Pong em Python, com compon
 - [Visão Geral](https://github.com/Dalpiva/TCC?tab=readme-ov-file#vis%C3%A3o-geral)
 - [Funcionalidades](https://github.com/Dalpiva/TCC?tab=readme-ov-file#funcionalidades)
 - [Instalação](https://github.com/Dalpiva/TCC?tab=readme-ov-file#instala%C3%A7%C3%A3o)
+- [Treinamento de IA](https://github.com/Dalpiva/TCC?tab=readme-ov-file#treinamento-de-ia)
+    - Treinamento com Q-Learning
+    - Treinamento com Redes Neurais Artificiais
 - [Como Executar](https://github.com/Dalpiva/TCC?tab=readme-ov-file#como-executar)
     - Modo Padrão
     - Modo IA (RNA)
     - Modo Q-Learning
-- [Treinamento de IA](https://github.com/Dalpiva/TCC?tab=readme-ov-file#treinamento-de-ia)
-    - Treinamento com Q-Learning
-    - Treinamento com Redes Neurais Artificiais
 - [Estrutura do Projeto](https://github.com/Dalpiva/TCC?tab=readme-ov-file#estrutura-do-projeto)
 - [Dependências](https://github.com/Dalpiva/TCC?tab=readme-ov-file#depend%C3%AAncias)
 
@@ -43,6 +43,29 @@ source .venv/bin/activate # No windows: .venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
+## Treinamento de IA
+### Treinamento com Redes Neurais Artificiais
+Para treinar um agente de IA usando Redes Neurais (RNA):
+
+```bash
+python treino_ann.py --population 100 --generations 50 --fitness-min 5 --fitness-avg 15
+```
+- `--population` : O tamanho da população de RNAs.
+- `--generations`: Número de gerações para o treinamento.
+- `--fitness_min`: Fitness mínimo necessário para um indivíduo avançar.
+- `--fitness_avg`: Fitness médio para continuar o processo de treinamento.
+
+### Treinamento com Q-Learning
+Você pode treinar o agente de Q-Learning executando:
+```bash
+python treino_ql.py --episodes 500 --alpha 0.4 --gamma 0.9 --discount 0.0001
+```
+
+- `--episodes`: Número de episódios para treinar o agente.
+- `--alpha`: Taxa de aprendizado.
+- `--gamma`: Fator de desconto.
+- `--discount`: Fator para ajustar epsilon (exploração versus exploração).
+
 ## Como Executar
 ### Modo Padrão
 Para executar o Pong clássico (Jogador contra IA):
@@ -62,29 +85,6 @@ Para executar o jogo com um agente de Q-Learning pré-treinado:
 ```bash
 python main.py --mode qlearning
 ```
-
-## Treinamento de IA
-### Treinamento com Redes Neurais Artificiais
-Para treinar um agente de IA usando Redes Neurais (RNA):
-
-```bash
-python train_ann.py --population 100 --generations 50 --fitness-min 5 --fitness-avg 15
-```
-- `--population` : O tamanho da população de RNAs.
-- `--generations`: Número de gerações para o treinamento.
-- `--fitness-min`: Fitness mínimo necessário para um indivíduo avançar.
-- `--fitness-avg`: Fitness médio para continuar o processo de treinamento.
-
-### Treinamento com Q-Learning
-Você pode treinar o agente de Q-Learning executando:
-```bash
-python train_qlearning.py --episodes 500 --alpha 0.4 --gamma 0.9 --discount 0.0001
-```
-
-- `--episodes`: Número de episódios para treinar o agente.
-- `--alpha`: Taxa de aprendizado.
-- `--gamma`: Fator de desconto.
-- `--discount`: Fator para ajustar epsilon (exploração versus exploração).
 
 ## Estrutura do Projeto
 ├── NeuralNetwork/&emsp;&emsp; # Diretório relacionado as Redes Neurais Artificiais<br/>
