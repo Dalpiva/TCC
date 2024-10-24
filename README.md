@@ -3,18 +3,18 @@ Este projeto é uma implementação clássica do jogo Pong em Python, com compon
 
 ### Tabela de Conteúdos
 
-- Visão Geral
-- Funcionalidades
-- Instalação
-- Como Executar
+- [Visão Geral](https://github.com/Dalpiva/TCC?tab=readme-ov-file#vis%C3%A3o-geral)
+- [Funcionalidades](https://github.com/Dalpiva/TCC?tab=readme-ov-file#funcionalidades)
+- [Instalação](https://github.com/Dalpiva/TCC?tab=readme-ov-file#instala%C3%A7%C3%A3o)
+- [Como Executar](https://github.com/Dalpiva/TCC?tab=readme-ov-file#como-executar)
     - Modo Padrão
     - Modo IA (RNA)
     - Modo Q-Learning
-- Treinamento de IA
+- [Treinamento de IA](https://github.com/Dalpiva/TCC?tab=readme-ov-file#treinamento-de-ia)
     - Treinamento com Q-Learning
     - Treinamento com Redes Neurais Artificiais
-- Estrutura do Projeto
-- Dependências
+- [Estrutura do Projeto](https://github.com/Dalpiva/TCC?tab=readme-ov-file#estrutura-do-projeto)
+- [Dependências](https://github.com/Dalpiva/TCC?tab=readme-ov-file#depend%C3%AAncias)
 
 ## Visão geral
 
@@ -30,7 +30,7 @@ Este projeto estende o jogo clássico Pong com capacidades de IA, proporcionando
 ## Instalação
 1 - Clone o repositório:
 ```bash
-git clone https://
+git clone https://github.com/Dalpiva/TCC.git
 cd pong-ia
 ```
 2 - Crie um ambiente virtual (opcional, mas recomendado):
@@ -111,4 +111,3 @@ python train_qlearning.py --episodes 500 --alpha 0.4 --gamma 0.9 --discount 0.00
 - Python 3.11.5
 - numpy 1.26.4
 - pygame 2.5.2
-- pickle: Para salvar e carregar agentes de Q-Learning/RNA
