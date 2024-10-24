@@ -1,5 +1,8 @@
 import pygame
+import argparse
 from time import time
+
+# Locais
 from NeuralNetwork import ArtificialNeuralNetwork
 from PongGame import PongGame
 
@@ -54,7 +57,7 @@ def treinar_rede_neural_artificial(
 
     # Loop principal de treinamento
     while esta_treinando(geracoes, geracao):
-        print(f"Geração {geracao} ###########################")
+        print(f"Geração {geracao} ---------------------------------------------")
 
         # Avaliação dos indivíduos e obtenção do melhor
         top1, resultado_treino = avaliar_individuos(
@@ -82,7 +85,7 @@ def treinar_rede_neural_artificial(
 
     ArtificialNeuralNetwork.salva_melhor(top1)
 
-    print("Treinamento Finalizado - RNA")
+    print("Treinamento Finalizado ----------------------------------------------")
     print(f"Tempo decorrido: {tempo_decorrido} segundos")
 
 
@@ -119,3 +122,59 @@ def avaliar_individuos(
         return top1, None
 
     return top1, False
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description="Jogue uma Partida de Pong contra uma IA",
+        formatter_class=argparse.RawTextHelpFormatter,
+    )
+    parser.add_argument(
+        "--population",
+        type=int,
+        help="""Define a quantidade de indivídios que serão treinados por geração
+            (padrão em 100)""",
+    )
+
+    parser.add_argument(
+        "--generations",
+        type=int,
+        help="""Número de gerações para o treinamento
+            (-1 para parada antecipada)""",
+    )
+
+    parser.add_argument(
+        "--fitness_min",
+        type=int,
+        help="""Fitness mínimo necessário para um indivíduo avançar
+            (padrão 5)""",
+    )
+
+    parser.add_argument(
+        "--fitness_avg",
+        type=int,
+        help="""Fitness médio para continuar o processo de treinamento
+            (padrão 15)""",
+    )
+
+    args = parser.parse_args()
+
+    if args.population is None:
+        print("Insira a População")
+        exit()
+
+    if args.generations is None:
+        print("Insira as Gerações")
+        exit()
+
+    if args.fitness_min is None:
+        print("Insira o Fitness Minimo")
+        exit()
+
+    if args.fitness_avg is None:
+        print("Insira o Fitness Médio")
+        exit()
+
+    treinar_rede_neural_artificial(
+        args.population, args.generations, args.fitness_min, args.fitness_avg
+    )

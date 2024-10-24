@@ -1,5 +1,8 @@
 import pygame
 from time import time
+import argparse
+
+# Locais
 from QLearning import QLearning
 from PongGame import PongGame
 
@@ -50,3 +53,65 @@ def treinar_q_learning(
 
     print("Treinamento Finalizado - QLearning!")
     print(f"Tempo Decorrido: {tempo_decorrido} segundos")
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description="Jogue uma Partida de Pong contra uma IA",
+        formatter_class=argparse.RawTextHelpFormatter,
+    )
+    parser.add_argument(
+        "--episodes",
+        type=int,
+        help="""Número de episódios para treinar o agente
+        (padrão em 500)""",
+    )
+
+    parser.add_argument(
+        "--alpha",
+        type=float,
+        help="""Taxa de aprendizado
+            Valores entre 0 e 1.
+            Valores próximos a 1 fazem o agente mais sensitivo a novas informações
+            Valores próximos a 0 fazem o agente mais conservador
+            (Padrão em 0.9)""",
+    )
+
+    parser.add_argument(
+        "--gamma",
+        type=float,
+        help="""Fator de desconto
+            Valores de 0 a 1
+            Valores próximos a 1 fazem o agente agir se em prol de recompensas a longo prazo
+            Valores próximos a 0 fazem o agente focar em recompensas imediatas
+            (Padão em 0.4)""",
+    )
+
+    parser.add_argument(
+        "--discount",
+        type=float,
+        help="""Fator para ajustar epsilon (exploração versus exploração)
+            Determina o quão rápido será o desconto no epsilon greedy
+            Epsilon greedy inicia-se em 1
+        (Padrão em 0.0001)""",
+    )
+
+    args = parser.parse_args()
+
+    if args.episodes is None:
+        print("Insira os Episódios")
+        exit()
+
+    if args.alpha is None:
+        print("Insira o valor Alpha")
+        exit()
+
+    if args.gamma is None:
+        print("Insira o valor Gamma")
+        exit()
+
+    if args.discount is None:
+        print("Insira o valor de exploração versus exploração")
+        exit()
+
+    treinar_q_learning(args.episodes, args.alpha, args.gamma, args.discount)

@@ -2,10 +2,11 @@
 #     https://github.com/techwithtim/Pong-Python
 #     https://github.com/techwithtim/NEAT-Pong-Python
 
-# Dependências:
-#     - pygame: Biblioteca para desenvolvimento de jogos.
 
 import pygame
+import argparse
+
+# Locais
 from NeuralNetwork import ArtificialNeuralNetwork
 from QLearning import QLearning
 from PongGame import PongGame
@@ -64,8 +65,25 @@ def iniciar_jogo_com_q_learning() -> None:
 
 
 if __name__ == "__main__":
-    # iniciar_jogo_normal()
-    treinar_rede_neural_artificial()
-    # iniciar_jogo_com_ann(geracao=1)
-    # treinar_q_learning()
-    # iniciar_jogo_com_q_learning()
+    parser = argparse.ArgumentParser(
+        description="Jogue uma Partida de Pong contra uma IA",
+        formatter_class=argparse.RawTextHelpFormatter,
+    )
+    parser.add_argument(
+        "--mode",
+        type=str,
+        choices=["standard", "ann", "ql"],
+        help="""Escolhe o modo de execução do código:
+        -> standard   : Jogar o pong clássico
+        -> ann        : Jogar contra a IA da Rede Neural
+        -> ql         : Jogar contra a IA do Q-Learning""",
+    )
+
+    args = parser.parse_args()
+
+    if args.mode == "standard":
+        iniciar_jogo_normal()
+    elif args.mode == "ann":
+        iniciar_jogo_com_ann()
+    elif args.mode == "ql":
+        iniciar_jogo_com_q_learning()
